@@ -2,8 +2,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
@@ -12,13 +10,16 @@ public class Bakery implements Runnable {
     private static final int TOTAL_CUSTOMERS = 10; // 1000
     private static final int ALLOWED_CUSTOMERS = 3; // 50
     private Map<BreadType, Integer> availableBread;
-    // private Set<Integer> clients;
     private ExecutorService executor;
 
-    // semaphore declarations - per apparatus type and weight plate size
+    // bakery w. allowed customers permits
     private final Semaphore semBakery = new Semaphore(ALLOWED_CUSTOMERS);
+
+    // 3 bread stands
     private final Semaphore[] semBreadStand = new Semaphore[3];
-    private final Semaphore semCashier = new Semaphore(1); // might need 3
+
+    // 3 cashiers
+    private final Semaphore semCashier = new Semaphore(3);
 
     /**
      * Run all customer threads, utilizing semaphores, as a fixed thread pool
@@ -26,7 +27,6 @@ public class Bakery implements Runnable {
     public void run() {
         // setup
         Arrays.fill(semBreadStand, new Semaphore(1));
-        // customers = new HashSet<Integer>();
         availableBread = new HashMap<BreadType, Integer>();
         availableBread.put(BreadType.RYE, 500);
         availableBread.put(BreadType.SOURDOUGH, 500);
@@ -43,14 +43,6 @@ public class Bakery implements Runnable {
             customers[i] = new Customer();
             // System.out.println(customers[i].toString());
         }
-
-        // while (clients.size() < ALLOWED_CUSTOMERS) {
-        //     int newid; // random id based on number of registered clients
-        //     if (customers.add(newid = new Random().nextInt(TOTAL_CUSTOMERS))) {
-        //         clientsArr[curIndex] = Client.generateRandom(newid);
-        //         curIndex++;
-        //     }
-        // }
 
         executor.execute(new Runnable() {
             public void run() {
@@ -110,6 +102,7 @@ public class Bakery implements Runnable {
 
             }
         });
-        executor.shutdown(); // do not accept new tasks, shut down ExecutorService
+
+        executor.shutdown();
     }
 }
