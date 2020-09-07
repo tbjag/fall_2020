@@ -7,8 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
 public class Bakery implements Runnable {
-    private static final int TOTAL_CUSTOMERS = 10; // 1000
-    private static final int ALLOWED_CUSTOMERS = 3; // 50
+    private static final int TOTAL_CUSTOMERS = 20; // 1000
+    private static final int ALLOWED_CUSTOMERS = 5; // 50
+    private static final int FULL_BREAD = 3; // 100
     private Map<BreadType, Integer> availableBread;
     private ExecutorService executor;
 
@@ -26,14 +27,11 @@ public class Bakery implements Runnable {
      */
     public void run() {
         // setup
-        Arrays.fill(semBreadStand, new Semaphore(1));
         availableBread = new HashMap<BreadType, Integer>();
-        availableBread.put(BreadType.RYE, 500);
-        availableBread.put(BreadType.SOURDOUGH, 500);
-        availableBread.put(BreadType.WONDER, 500);
-        semBreadStand[0] = new Semaphore(availableBread.get(BreadType.RYE));
-        semBreadStand[1] = new Semaphore(availableBread.get(BreadType.SOURDOUGH));
-        semBreadStand[2] = new Semaphore(availableBread.get(BreadType.WONDER));
+        availableBread.put(BreadType.RYE, FULL_BREAD);
+        availableBread.put(BreadType.SOURDOUGH, FULL_BREAD);
+        availableBread.put(BreadType.WONDER, FULL_BREAD);
+        Arrays.fill(semBreadStand, new Semaphore(1));
 
         // generate customers and execute thread pool
         executor = Executors.newFixedThreadPool(TOTAL_CUSTOMERS);
@@ -50,7 +48,7 @@ public class Bakery implements Runnable {
 
                 for (Customer c : customers) {
                     // acquire entry to bakery
-                    System.out.println("Customer " + c.hashCode() + " acquires bakery");
+                    System.out.println("Customer " + c.hashCode() + " acquires bakery entry");
                     try {
                         semBakery.acquire();
                     } catch (InterruptedException ie) {
@@ -62,6 +60,15 @@ public class Bakery implements Runnable {
                         System.out.println("Customer " + c.hashCode() + " acquires " + item.toString() + " bread stand");
                         try {
                             semBreadStand[item.ordinal()].acquire();
+                            int breadLeft = availableBread.get(item);
+                            if (breadLeft > 0) {
+                                availableBread.put(item, breadLeft - 1);
+                            } else {
+                                System.out.println("No " + item.toString() + " bread left! Restocking...");
+                                // restock by acquiring the bread stand for some time
+                                Thread.sleep(2000);
+                                availableBread.put(item, FULL_BREAD - 1);
+                            }
                         } catch (InterruptedException ie) {
                             ie.printStackTrace();
                         }
