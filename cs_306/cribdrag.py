@@ -23,7 +23,7 @@ def try_crib(xorString, cribword, index):
 	shortenedWord = ""
 	for j in range(index, index + len(cribword)):
 		shortenedWord += arr[j] + " "
-	res = xor_strings(shortenedWord, cribAscii)
+	res = (shortenedWord, cribAscii)
 	output = ""
 	arr2 = res.split(" ")
 	for k in range(0, len(arr2) - 1):
@@ -47,6 +47,9 @@ one_key = "testing testing can you read this"
 
 messages = ["testing testing can you read this","yep can read you perfectly fine", "awesome one time pad is working  ", " can make fun of Nikos now "]
 
+
+print(hex_to_string(msg1))
+
 def crib_drag():
 	crib = messages[0]
 	for x in range(0, 34 - len(crib)):
@@ -60,5 +63,5 @@ def print_all_msgs():
 		for x in range(0, 34 - len(one_key)):
 			print(try_crib(xor_strings(hex_to_string(msg1),hex_to_string(i)),one_key,x))
 
-print_all_msgs()
+print(xor_strings(hex_to_string(encrypted_messages[0]),hex_to_string(msg1)))
 
