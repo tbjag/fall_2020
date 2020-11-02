@@ -1,3 +1,13 @@
+#################################################
+#  Company    : Stevens 
+#  Project    : EDA 
+#  Purpose    : use EDA to analyze breast-cancer-wisconsin.data.csv
+#  First Name : Theodore
+#  Last Name  : Jagodits
+#  Id			    : 10428864
+#  Date       : 10/20/2020
+#  Comments   :
+
 #homework 2 cs513 / Theodore Jagodits
 #uses breast-cancer-wisconsin.data.csv
 #i pledge my honor that I have abided by the Stevens honor system. 
