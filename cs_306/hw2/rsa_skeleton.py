@@ -27,7 +27,7 @@ def modexp(b, e, m):
     # Complete this part during the lab
     if m == 1:
         return 0
-    assert((m - 1) * (m - 1) < 2**1000)
+    assert((m - 1) * (m - 1) > 0)
     res = 1
     b = b % m
     while e > 0:
@@ -98,7 +98,7 @@ def mulinv(e, n):
     if g != 1:
         raise Exception('modular inverse does not exist')
     else:
-        return x % m
+        return x % n
 
 def checkprime(n, size):
     # do not modify!
@@ -153,8 +153,22 @@ def keygen(size):
     # return a tuple of tuples, [[n, e], [n, d]]
     # Complete this for HW 2 extra credit
     assert(size % 2 == 0 and size > 2) # keep this line!
-    
-    return 0
+    e = 0
+    #n = calc n primegen size/2
+    p = primegen(size/2)
+    q = primegen(size/2)
+    n = calc_n(p, q)
+    # phi = calc phi p q
+    phi = calc_phi(p, q)
+    #e = any 2 to phi egcd == 1
+    for i in range(2, phi):
+        (g, y, x) = egcd(i, phi)
+        if g == 1:
+            e = i
+            break
+    # d= mul inv (E and phi)
+    d = mulinv(e, phi)
+    return ((n, e), (n, d))
 
 def customkeytest(text, size):
     keypair = keygen(size)
@@ -169,4 +183,4 @@ def customkeytest(text, size):
     print("Encrypted message:",ciphertext)
     print("Decrypted message:",plaintext)
 
-test()
+customkeytest("hello", 30)

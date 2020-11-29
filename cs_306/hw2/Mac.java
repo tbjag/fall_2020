@@ -1,5 +1,4 @@
 import java.security.Key;
-import java.util.Arrays;
 
 // Implement this class
 public class Mac extends MacSkeleton {
@@ -30,11 +29,9 @@ public class Mac extends MacSkeleton {
         //pad the msg
         byte[] padded_msg = pad(message, getBlockSize());
         //create result
-        byte[] res = new byte[padded_msg.length];
-        //create a temp
+        byte[] res = new byte[getBlockSize()];
+        //temp
         byte[] temp = new byte[getBlockSize()];
-        //curr
-        byte[] prev = new byte[getBlockSize()];
 
         //CBC doesnt really work on single blocks
         if(padded_msg.length / getBlockSize() == 1){
@@ -45,37 +42,32 @@ public class Mac extends MacSkeleton {
 			}
         }else{
             //CBC MAC
-            //get the message by block
+            //get the message by block first part
             for (int j = 0; j < getBlockSize(); j++){
                 temp[j] = padded_msg[j];
             }
             try {
-				prev = encryptBlock(temp, key);
+				res = encryptBlock(temp, key);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-            //push by block into result
-            for (int j = 0; j < getBlockSize(); j++){
-                res[j] = prev[j];
-            }
 
-            //chain the rest with its previous
+            //xor on top the prev
             for (int i = 1; i < (padded_msg.length / getBlockSize()); i++){
                 //get the message by block
                 for (int j = 0; j < getBlockSize(); j++){
                     temp[j] = padded_msg[j + (i * getBlockSize())];
                 }
+                //xor
+                res = xor(res, temp);
+                //encrypt
                 try {
-					temp = encryptBlock(temp, key);
+					res = encryptBlock(res, key);
 				} catch (Exception e) {
 					e.printStackTrace();
                 }
-                //CBC chain together
-                prev = xor(temp, prev);
-                //push by block into result
-                for (int j = 0; j < getBlockSize(); j++){
-                    res[j + (i * getBlockSize())] = prev[j];
-                }
+                
+            
             }
         }
         //return result
